@@ -29,9 +29,6 @@ class puppet_win (
 
 ){
 
-  # parameter validation
-  validate_string($value)
-
   exec { 'run_powershell':
     command  => "write-output '${value}'",
     provider => powershell,
