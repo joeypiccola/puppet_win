@@ -26,6 +26,9 @@
 class puppet_win (
 
   String $value = undef,
+  String $valuetwo = undef,
+  String $pswindowsupdateurl = undef,
+  String $wsusscnurl = undef,
 
 ){
 
@@ -43,9 +46,15 @@ class puppet_win (
   }
 
   exec { 'puppet_win_psexec':
-    command   => "& C:\\windows\\temp\\Test-Param.ps1 -Value ${value}",
+    command   => "& C:\\windows\\temp\\Test-Param.ps1 -value ${value} -valuetwo ${valuetwo}",
     provider  => 'powershell',
     logoutput => true,
   }
+
+  # exec { 'puppet_win_getupdates':
+  #  command   => "& C:\\windows\\temp\\Get-MissingUpdates.ps1 -pswindowsupdateurl ${pswindowsupdateurl} -wsusscnurl ${wsusscnurl}",
+  #  provider  => 'powershell',
+  #  logoutput => true,
+  # }
 
 }
