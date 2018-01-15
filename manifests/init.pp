@@ -51,7 +51,14 @@ class puppet_win (
 #    logoutput => true,
 #  }
 
-  exec { 'puppet_win_getupdates':
+  file { 'puppet_win_stage_file':
+    ensure => 'present',
+    source => 'puppet:///modules/puppet_win/Get-MissingUpdates.ps1',
+    path   => 'c:/windows/temp/Get-MissingUpdates.ps1',
+    before => Exec['puppet_win_run_file'],
+  }
+
+  exec { 'puppet_win_run_file':
     command   => "& C:\\windows\\temp\\Get-MissingUpdates.ps1 -pswindowsupdateurl ${pswindowsupdateurl} -wsusscnurl ${wsusscnurl}",
     provider  => 'powershell',
     logoutput => true,
