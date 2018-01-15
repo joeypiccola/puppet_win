@@ -1,6 +1,7 @@
 ﻿[CmdletBinding()]
 Param(
-$Value
+$Value,
+$ValueTwo
 )
 
-Write-Host $Value
+Write-Host "$Value and $valueTwo"
