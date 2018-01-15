@@ -72,4 +72,5 @@ try {
     Write-Host "Total missing updates: $($missingUpdates.count)" -ForegroundColor Green
 } catch {
     Write-Error $_.Exception.Message
+    exit 1
 }
