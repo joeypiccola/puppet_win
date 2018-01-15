@@ -30,8 +30,9 @@ class puppet_win (
 ){
 
   exec { 'run_powershell':
-    command  => "write-output '${value}'",
-    provider => powershell,
+    command   => "write-output '${value}'",
+    provider  => powershell,
+    logoutput => true,
   }
 
 }
