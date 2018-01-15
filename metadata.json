@@ -1,8 +1,8 @@
 {
   "name": "jpi-puppet_win",
   "version": "0.1.0",
-  "author": "Puppet module Puppet mP testing random things",
-  "summary": "",
+  "author": "Joey Piccola",
+  "summary": "Puppet module Puppet for testing random things",
   "license": "MIT",
   "source": "",
   "dependencies": [
