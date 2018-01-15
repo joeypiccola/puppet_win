@@ -33,7 +33,7 @@ class puppet_win (
   validate_string($value)
 
   exec { 'run_powershell':
-    command  => "write-output '${timezone}'",
+    command  => "write-output '${value}'",
     provider => powershell,
   }
 
