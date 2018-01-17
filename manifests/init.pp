@@ -27,6 +27,7 @@ class puppet_win (
 
   String $pswindowsupdateurl,
   String $wsusscnurl,
+  String $downloaddirectory = 'c:/Windows/Temp',
   Boolean $pswindowsupdateforcedownload = false,
   Boolean $wsusscnforcedownload = false,
 
@@ -58,7 +59,7 @@ class puppet_win (
   }
 
   exec { 'puppet_win_run_file':
-    command   => "& C:\\windows\\temp\\Invoke-WindowsUpdateReport.ps1 -pswindowsupdateurl ${pswindowsupdateurl} -wsusscnurl ${wsusscnurl} -pswindowsupdateforcedownload:${pswindowsupdateforcedownload_set} -wsusscnforcedownload:${wsusscnforcedownload_set}",
+    command   => "& C:\\windows\\temp\\Invoke-WindowsUpdateReport.ps1 -pswindowsupdateurl ${pswindowsupdateurl} -wsusscnurl ${wsusscnurl} -pswindowsupdateforcedownload:${pswindowsupdateforcedownload_set} -wsusscnforcedownload:${wsusscnforcedownload_set} -downloaddirectory ${downloaddirectory}",
     provider  => 'powershell',
     logoutput => true,
   }
