@@ -27,29 +27,28 @@ class puppet_win (
 
   String $pswindowsupdateurl = undef,
   String $wsusscnurl = undef,
-  Boolean $pswindowsupdateforcedownload = false,
-  Boolean $wsusscnforcedownload = false,
+  Boolean $pswindowsupdateforcedownload = undef,
+  Boolean $wsusscnforcedownload = undef,
 
 ){
 
-#  exec { 'run_powershell':
-#    command   => "write-output '${value}'",
-#    provider  => powershell,
-#    logoutput => true,
-#  }
-#
-#  file { 'puppet_win_psfile':
-#    ensure => 'present',
-#    source => 'puppet:///modules/puppet_win/Test-Param.ps1',
-#    path   => 'c:/windows/temp/Test-Param.ps1',
-#    before => Exec['puppet_win_psexec'],
-#  }
-#
-#  exec { 'puppet_win_psexec':
-#    command   => "& C:\\windows\\temp\\Test-Param.ps1 -value ${value} -valuetwo ${valuetwo}",
-#    provider  => 'powershell',
-#    logoutput => true,
-#  }
+  case $pswindowsupdateforcedownload {
+    'false': {
+      $pswindowsupdateforcedownload_set = '$false'
+  }
+    default: {
+      $pswindowsupdateforcedownload_set = '$true'
+    }
+  }
+
+  case $wsusscnforcedownload {
+    'disabled': {
+      $wsusscnforcedownload_set = '$false'
+  }
+    default: {
+      $wsusscnforcedownload_set = '$true'
+    }
+  }
 
   file { 'puppet_win_stage_file':
     ensure => 'present',
@@ -59,7 +58,7 @@ class puppet_win (
   }
 
   exec { 'puppet_win_run_file':
-    command   => "& C:\\windows\\temp\\Invoke-WindowsUpdateReport.ps1 -pswindowsupdateurl ${pswindowsupdateurl} -wsusscnurl ${wsusscnurl} -pswindowsupdateforcedownload:${pswindowsupdateforcedownload} -wsusscnforcedownload:${wsusscnforcedownload}",
+    command   => "& C:\\windows\\temp\\Invoke-WindowsUpdateReport.ps1 -pswindowsupdateurl ${pswindowsupdateurl} -wsusscnurl ${wsusscnurl} -pswindowsupdateforcedownload:${pswindowsupdateforcedownload_set} -wsusscnforcedownload:${wsusscnforcedownload_set}",
     provider  => 'powershell',
     logoutput => true,
   }
