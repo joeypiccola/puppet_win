@@ -43,6 +43,7 @@ try {
     if (!(Test-Path -Path 'C:\windows\Temp\pswindowsupdate') -or ($PSWindowsUpdateForceDownload -eq $true)) {
         # remove pswindowsupdate dir if it exists
         if (Test-Path -Path 'C:\windows\Temp\pswindowsupdate') {
+        Write-Verbose '1'
             Remove-Item -Path 'C:\windows\Temp\pswindowsupdate' -Force -ErrorAction Stop
         }
         # download the pswindowsupdate module, automatically overwrite the zip if already present
@@ -62,7 +63,7 @@ try {
         # download the wsusscn2.cab
         Start-BitsTransfer -Source $WSUSscnURL -Destination 'C:\windows\Temp' -ErrorAction Stop
     } else {
-        $localwsusscnFile = (Get-Item -Path -Path 'c:\windows\temp\wsusscn2.cab').LastWriteTime
+        $localwsusscnFile = (Get-Item -Path 'c:\windows\temp\wsusscn2.cab').LastWriteTime
         $remoteWSUSscnFile = Get-WebFileLastModified -url $WSUSscnURL
         # if the wsusscn2.cab file in the webrepo does not match the local version then redownload it
         if ($localwsusscnFile -ne $remoteWSUSscnFile) {
@@ -72,7 +73,7 @@ try {
     }
 
     # import the pswindowesupdate module
-    Import-Module -Name 'c:\windows\temp\PSWindowsUpdate\2.0.0.2\PSWindowsUpdate.psd1' -ErrorAction Stop
+    Import-Module 'c:\windows\temp\PSWindowsUpdate\2.0.0.2\PSWindowsUpdate.psd1' -ErrorAction Stop
     # get any previous Offline Service Managers and remove them manually
     $offlineServiceManagers = Get-WUServiceManager | ?{$_.name -eq 'Offline Sync Service'}
     if ($offlineServiceManagers) {
