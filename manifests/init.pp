@@ -59,7 +59,7 @@ class puppet_win (
   }
 
   exec { 'puppet_win_run_file':
-    command   => "& C:\\windows\\temp\\Get-MissingUpdates.ps1 -pswindowsupdateurl ${pswindowsupdateurl} -wsusscnurl ${wsusscnurl} -pswindowsupdateforcedownload:${pswindowsupdateforcedownload} -wsusscnforcedownload:${wsusscnforcedownload}",
+    command   => "& C:\\windows\\temp\\Invoke-WindowsUpdateReport.ps1 -pswindowsupdateurl ${pswindowsupdateurl} -wsusscnurl ${wsusscnurl} -pswindowsupdateforcedownload:${pswindowsupdateforcedownload} -wsusscnforcedownload:${wsusscnforcedownload}",
     provider  => 'powershell',
     logoutput => true,
   }
