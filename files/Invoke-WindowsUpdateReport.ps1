@@ -1,18 +1,27 @@
 ﻿[CmdletBinding()]
 Param (
     [Parameter(Mandatory)]
-    [String]$PSWindowsUpdateURL
+    [System.Uri]$PSWindowsUpdateURL
     ,
     [Parameter()]
     [Switch]$PSWindowsUpdateForceDownload
     ,
     [Parameter(Mandatory)]
-    [String]$WSUSscnURL
+    [System.Uri]$WSUSscnURL
     ,
     [Parameter()]
     [Switch]$WSUSscnForceDownload
+    ,
+    [Parameter()]
+    [ValidateScript({Test-Path -Path $_ -IsValid})]
+    [String]$DownloadDirectory = 'C:\Windows\Temp'
 )
 
+$PSWindowsUpdateDir = Join-Path -Path $DownloadDirectory -ChildPath 'PSWindowsUpdate'
+$PSWindowsUpdateZipFile = $PSWindowsUpdateURL.ToString().Split('/')[$PSWindowsUpdateURL.ToString().split('/').count-1]
+$PSWindowsUpdateZipFilePath = Join-Path -Path $DownloadDirectory -ChildPath $PSWindowsUpdateZipFile
+$WSUSscnCabFile =  $WSUSscnURL.ToString().Split('/')[$WSUSscnURL.ToString().split('/').count-1]
+$WSUSscnCabFilePath = Join-Path -Path $DownloadDirectory -ChildPath $WSUSscnCabFile
 
 #region helperFunctions
 
@@ -36,44 +45,48 @@ function Get-WebFileLastModified($url) {
 #endregion
 
 try {
+    # if the specified working directory does not exist try and make it
+    if (!(Test-Path -Path $DownloadDirectory)) {
+        New-Item -ItemType Directory -Path $DownloadDirectory -Force -ErrorAction Stop
+    }
+
     # import the BitsTransfer module
     Import-Module -Name BitsTransfer -ErrorAction Stop
 
     # download the pswindowsupdate module
-    if (!(Test-Path -Path 'C:\windows\Temp\pswindowsupdate') -or ($PSWindowsUpdateForceDownload -eq $true)) {
+    if (!(Test-Path -Path $PSWindowsUpdateDir) -or ($PSWindowsUpdateForceDownload -eq $true)) {
         # remove pswindowsupdate dir if it exists
-        if (Test-Path -Path 'C:\windows\Temp\pswindowsupdate') {
-        Write-Verbose '1'
-            Remove-Item -Path 'C:\windows\Temp\pswindowsupdate' -Force -ErrorAction Stop
+        if (Test-Path -Path $PSWindowsUpdateDir) {
+            Remove-Item -Path $PSWindowsUpdateDir -Recurse -Force -ErrorAction Stop
         }
         # download the pswindowsupdate module, automatically overwrite the zip if already present
-        Start-BitsTransfer -Source $PSWindowsUpdateURL -Destination 'C:\windows\Temp' -ErrorAction Stop
+        Start-BitsTransfer -Source $PSWindowsUpdateURL -Destination $DownloadDirectory -ErrorAction Stop
         # unzip the module
-        Expand-ZIPFile -File 'C:\Windows\Temp\pswindowsupdate.zip' -Destination 'C:\Windows\Temp'
+        Expand-ZIPFile -File $PSWindowsUpdateZipFilePath -Destination $DownloadDirectory
         # remove the module zip file
-        Remove-Item -Path 'C:\Windows\Temp\pswindowsupdate.zip' -Force -ErrorAction Stop
+        Remove-Item -Path $PSWindowsUpdateZipFilePath -Force -ErrorAction Stop
     }
 
     # download the wsusscn2.cab file
-    if (!(Test-Path -Path 'c:\windows\temp\wsusscn2.cab') -or (($WSUSscnForceDownload -eq $true) -and (Test-Path -Path 'c:\windows\temp\wsusscn2.cab'))) {
+    if (!(Test-Path -Path $WSUSscnCabFilePath) -or (($WSUSscnForceDownload -eq $true) -and (Test-Path -Path $WSUSscnCabFilePath))) {
         # remove the wsusscn2.cab if it exists
-        if (Test-Path -Path 'c:\windows\temp\wsusscn2.cab') {
-            Remove-Item -Path 'C:\Windows\temp\wsusscn2.cab' -Force -Confirm:$false -ErrorAction Stop
+        if (Test-Path -Path $WSUSscnCabFilePath) {
+            Remove-Item -Path $WSUSscnCabFilePath -Force -Confirm:$false -ErrorAction Stop
         }
         # download the wsusscn2.cab
-        Start-BitsTransfer -Source $WSUSscnURL -Destination 'C:\windows\Temp' -ErrorAction Stop
+        Start-BitsTransfer -Source $WSUSscnURL -Destination $DownloadDirectory -ErrorAction Stop
     } else {
-        $localwsusscnFile = (Get-Item -Path 'c:\windows\temp\wsusscn2.cab').LastWriteTime
+        $localwsusscnFile = (Get-Item -Path $WSUSscnCabFilePath).LastWriteTime
         $remoteWSUSscnFile = Get-WebFileLastModified -url $WSUSscnURL
         # if the wsusscn2.cab file in the webrepo does not match the local version then redownload it
         if ($localwsusscnFile -ne $remoteWSUSscnFile) {
-            Remove-Item -Path 'C:\Windows\temp\wsusscn2.cab' -Force -Confirm:$false -ErrorAction Stop
-            Start-BitsTransfer -Source $WSUSscnURL -Destination 'C:\windows\Temp' -ErrorAction Stop
+            Remove-Item -Path$WSUSscnCabFilePath -Force -Confirm:$false -ErrorAction Stop
+            Start-BitsTransfer -Source $WSUSscnURL -Destination $DownloadDirectory -ErrorAction Stop
         }
     }
 
     # import the pswindowesupdate module
-    Import-Module 'c:\windows\temp\PSWindowsUpdate\2.0.0.2\PSWindowsUpdate.psd1' -ErrorAction Stop
+    Import-Module (Get-Item -Filter "*.psd1" -Path $PSWindowsUpdateDir).FullName -ErrorAction Stop
     # get any previous Offline Service Managers and remove them manually
     $offlineServiceManagers = Get-WUServiceManager | ?{$_.name -eq 'Offline Sync Service'}
     if ($offlineServiceManagers) {
@@ -109,7 +122,7 @@ try {
 
     $scan_meta = [pscustomobject]@{
         last_run_time = (Get-Date -Format "MM-dd-yyyy hh:mm:ss tt")
-        wsusscn2_file_time = (Get-Item -Path 'C:\windows\Temp\wsusscn2.cab').lastwritetime.ToString("MM-dd-yyyy hh:mm:ss tt")
+        wsusscn2_file_time = (Get-Item -Path $WSUSscnCabFilePath).lastwritetime.ToString("MM-dd-yyyy hh:mm:ss tt")
     }
 
     $meta = [pscustomobject]@{
@@ -124,7 +137,7 @@ try {
     $windowsupdatereporting_col += $fact_name
     $factContent = $windowsupdatereporting_col | ConvertTo-Json -Depth 4
     $factPath = 'C:\ProgramData\PuppetLabs\facter\facts.d\updatereporting.json'
-    # force UTF8 with no BOM to make facter happy
+    # force UTF8 with no BOM to make facter happy (Out-File -Encoding UTF8 does not work, Add-Content does not work, >> does not work)
     $Utf8NoBomEncoding = New-Object System.Text.UTF8Encoding $False
     [System.IO.File]::WriteAllLines($factPath, $factContent, $Utf8NoBomEncoding)
 
