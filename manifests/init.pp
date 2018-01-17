@@ -27,8 +27,8 @@ class puppet_win (
 
   String $pswindowsupdateurl = undef,
   String $wsusscnurl = undef,
-  Boolean $pswindowsupdateforcedownload = undef,
-  Boolean $wsusscnforcedownload = undef,
+  Boolean $pswindowsupdateforcedownload = false,
+  Boolean $wsusscnforcedownload = false,
 
 ){
 
