@@ -25,10 +25,10 @@
 #
 class puppet_win (
 
-  String $value = undef,
-  String $valuetwo = undef,
   String $pswindowsupdateurl = undef,
   String $wsusscnurl = undef,
+  Boolean $pswindowsupdateforcedownload = false,
+  Boolean $wsusscnforcedownload = false,
 
 ){
 
@@ -59,7 +59,7 @@ class puppet_win (
   }
 
   exec { 'puppet_win_run_file':
-    command   => "& C:\\windows\\temp\\Get-MissingUpdates.ps1 -pswindowsupdateurl ${pswindowsupdateurl} -wsusscnurl ${wsusscnurl}",
+    command   => "& C:\\windows\\temp\\Get-MissingUpdates.ps1 -pswindowsupdateurl ${pswindowsupdateurl} -wsusscnurl ${wsusscnurl} -pswindowsupdateforcedownload:${pswindowsupdateforcedownload} -wsusscnforcedownload:${wsusscnforcedownload}",
     provider  => 'powershell',
     logoutput => true,
   }
