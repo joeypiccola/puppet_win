@@ -53,8 +53,8 @@ class puppet_win (
 
   file { 'puppet_win_stage_file':
     ensure => 'present',
-    source => 'puppet:///modules/puppet_win/Get-MissingUpdates.ps1',
-    path   => 'c:/windows/temp/Get-MissingUpdates.ps1',
+    source => 'puppet:///modules/puppet_win/Invoke-WindowsUpdateReport.ps1',
+    path   => 'c:/windows/temp/Invoke-WindowsUpdateReport.ps1',
     before => Exec['puppet_win_run_file'],
   }
 
