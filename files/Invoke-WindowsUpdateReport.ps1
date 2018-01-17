@@ -95,7 +95,7 @@ try {
     $objService = $objServiceManager.RemoveService($offlineServiceManager.ServiceID)
 
     # parse the results and stage an external fact
-    $updates = $missingUpdates | select kb, title, size, msrcseverity, @{Name="LastDeploymentChangeTime";Expression={$_.lastdeploymentchangetime.tostring("MM-dd-yyyy")}}
+    $updates = $missingUpdates | select kb, title, size, msrcseverity, @{Name="LastDeploymentChangeTime";Expression={$_.lastdeploymentchangetime.tostring("MM-dd-yyyy hh:mm:ss tt")}}
     $kbarray = @()
     $updates | %{$kbarray += $_.kb} | ConvertTo-Csv
     $windowsupdatereporting_col = @()
@@ -107,8 +107,8 @@ try {
     }
 
     $scan_meta = [pscustomobject]@{
-        last_run_time = (Get-Date -Format "MM-dd-yyyy")
-        wsusscn2_file_time = (Get-Item -Path 'C:\windows\Temp\wsusscn2.cab').lastwritetime.ToString("MM-dd-yyyy")
+        last_run_time = (Get-Date -Format "MM-dd-yyyy hh:mm:ss tt")
+        wsusscn2_file_time = (Get-Item -Path 'C:\windows\Temp\wsusscn2.cab').lastwritetime.ToString("MM-dd-yyyy hh:mm:ss tt")
     }
 
     $meta = [pscustomobject]@{
