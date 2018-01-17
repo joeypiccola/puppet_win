@@ -122,7 +122,11 @@ try {
     }
 
     $windowsupdatereporting_col += $fact_name
-    $windowsupdatereporting_col | ConvertTo-Json -Depth 4 | Out-File 'C:\ProgramData\PuppetLabs\facter\facts.d\updatereporting.json' -Force -Encoding utf8
+    $factContent = $windowsupdatereporting_col | ConvertTo-Json -Depth 4
+    $factPath = 'C:\ProgramData\PuppetLabs\facter\facts.d\updatereporting.json'
+    # force UTF8 with no BOM to make facter happy
+    $Utf8NoBomEncoding = New-Object System.Text.UTF8Encoding $False
+    [System.IO.File]::WriteAllLines($factPath, $factContent, $Utf8NoBomEncoding)
 
 } catch {
     Write-Error $_.Exception.Message
