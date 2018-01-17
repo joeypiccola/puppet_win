@@ -17,11 +17,23 @@ Param (
     [String]$DownloadDirectory = 'C:\Windows\Temp'
 )
 
+$DownloadDirectory = $DownloadDirectory.Replace('/','\')
 $PSWindowsUpdateDir = Join-Path -Path $DownloadDirectory -ChildPath 'PSWindowsUpdate'
 $PSWindowsUpdateZipFile = $PSWindowsUpdateURL.ToString().Split('/')[$PSWindowsUpdateURL.ToString().split('/').count-1]
 $PSWindowsUpdateZipFilePath = Join-Path -Path $DownloadDirectory -ChildPath $PSWindowsUpdateZipFile
 $WSUSscnCabFile =  $WSUSscnURL.ToString().Split('/')[$WSUSscnURL.ToString().split('/').count-1]
 $WSUSscnCabFilePath = Join-Path -Path $DownloadDirectory -ChildPath $WSUSscnCabFile
+
+Write-Verbose -Message $PSWindowsUpdateURL
+Write-Verbose -Message $PSWindowsUpdateForceDownload
+Write-Verbose -Message $WSUSscnURL
+Write-Verbose -Message $WSUSscnForceDownload
+Write-Verbose -Message $DownloadDirectory
+Write-Verbose -Message $PSWindowsUpdateDir
+Write-Verbose -Message $PSWindowsUpdateZipFile
+Write-Verbose -Message $PSWindowsUpdateZipFilePath
+Write-Verbose -Message $WSUSscnCabFile
+Write-Verbose -Message $WSUSscnCabFilePath
 
 #region helperFunctions
 
@@ -98,7 +110,7 @@ try {
     }
 
     # add the previously downloaded wsusscn2.cab file as an Offline Sync Service Manager
-    Add-WUServiceManager -ScanFileLocation C:\Windows\Temp\wsusscn2.cab -Confirm:$false -ErrorAction Stop
+    Add-WUServiceManager -ScanFileLocation $WSUSscnCabFilePath -Confirm:$false -ErrorAction Stop
     # get the service ID of the previously added Offline Service Manager
     $offlineServiceManager = Get-WUServiceManager -ErrorAction Stop | ?{$_.name -eq 'Offline Sync Service'}
     # get the missing updates using the previously added Offline Service Manager
