@@ -122,7 +122,7 @@ try {
     }
 
     $windowsupdatereporting_col += $fact_name
-    $windowsupdatereporting_col | ConvertTo-Json -Depth 4 | Out-File 'C:\ProgramData\PuppetLabs\facter\facts.d\updatereporting_win.json' -Force
+    $windowsupdatereporting_col | ConvertTo-Json -Depth 4 | Out-File 'C:\ProgramData\PuppetLabs\facter\facts.d\updatereporting.json' -Force
 
 } catch {
     Write-Error $_.Exception.Message
