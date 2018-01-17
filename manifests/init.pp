@@ -1,7 +1,7 @@
 # == Class: puppet_win
 #
 #
-#
+#    -pswindowsupdateforcedownload:${pswindowsupdateforcedownload_set} -wsusscnforcedownload:${wsusscnforcedownload_set}
 #
 # === Parameters
 #
@@ -42,7 +42,7 @@ class puppet_win (
   }
 
   case $wsusscnforcedownload {
-    'disabled': {
+    'false': {
       $wsusscnforcedownload_set = '$false'
   }
     default: {
@@ -58,7 +58,7 @@ class puppet_win (
   }
 
   exec { 'puppet_win_run_file':
-    command   => "& C:\\windows\\temp\\Invoke-WindowsUpdateReport.ps1 -pswindowsupdateurl ${pswindowsupdateurl} -wsusscnurl ${wsusscnurl} -pswindowsupdateforcedownload:${pswindowsupdateforcedownload_set} -wsusscnforcedownload:${wsusscnforcedownload_set}",
+    command   => "& C:\\windows\\temp\\Invoke-WindowsUpdateReport.ps1 -pswindowsupdateurl ${pswindowsupdateurl} -wsusscnurl ${wsusscnurl}",
     provider  => 'powershell',
     logoutput => true,
   }
