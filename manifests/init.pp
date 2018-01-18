@@ -55,13 +55,28 @@ class puppet_win (
     ensure => 'present',
     source => 'puppet:///modules/puppet_win/Invoke-WindowsUpdateReport.ps1',
     path   => 'c:/windows/temp/Invoke-WindowsUpdateReport.ps1',
-    before => Exec['puppet_win_run_file'],
+    before => Exec['updatereporting_win'],
   }
 
-  exec { 'puppet_win_run_file':
-    command   => "& C:\\windows\\temp\\Invoke-WindowsUpdateReport.ps1 -pswindowsupdateurl ${pswindowsupdateurl} -wsusscnurl ${wsusscnurl} -pswindowsupdateforcedownload:${pswindowsupdateforcedownload_set} -wsusscnforcedownload:${wsusscnforcedownload_set} -downloaddirectory ${downloaddirectory}",
-    provider  => 'powershell',
-    logoutput => true,
+  $min = fqdn_rand(59,'kb')
+  $hour = fqdn_rand(5,'kb')
+
+  scheduled_task { 'updatereporting_win':
+    ensure    => 'present',
+    name      => 'Puppet Windows Update Reporting',
+    enabled   => true,
+    command   => 'C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe',
+    arguments => "-WindowStyle Hidden -ExecutionPolicy Bypass -file C:\\windows\\temp\\Invoke-WindowsUpdateReport.ps1 -pswindowsupdateurl ${pswindowsupdateurl} -wsusscnurl ${wsusscnurl} -pswindowsupdateforcedownload:${pswindowsupdateforcedownload_set} -wsusscnforcedownload:${wsusscnforcedownload_set} -downloaddirectory ${downloaddirectory}",
+    trigger   => {
+      schedule   => daily,
+      start_time => "${hour}:${min}",
+    }
   }
+
+  # exec { 'puppet_win_run_file':
+  #   command   => "& C:\\windows\\temp\\Invoke-WindowsUpdateReport.ps1 -pswindowsupdateurl ${pswindowsupdateurl} -wsusscnurl ${wsusscnurl} -pswindowsupdateforcedownload:${pswindowsupdateforcedownload_set} -wsusscnforcedownload:${wsusscnforcedownload_set} -downloaddirectory ${downloaddirectory}",
+  #   provider  => 'powershell',
+  #   logoutput => true,
+  # }
 
 }
