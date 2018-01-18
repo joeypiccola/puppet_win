@@ -58,8 +58,8 @@ class puppet_win (
     before => Exec['updatereporting_win'],
   }
 
-  $min = fqdn_rand(59,'kb')
-  $hour = fqdn_rand(5,'kb')
+  $min = fqdn_rand(59)
+  $hour = fqdn_rand(3)+1
 
   scheduled_task { 'updatereporting_win':
     ensure    => 'present',
