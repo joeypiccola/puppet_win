@@ -35,6 +35,7 @@ class puppet_win (
   String $downloaddirectory = 'c:/Windows/Temp',
   Boolean $pswindowsupdateforcedownload = false,
   Boolean $wsusscnforcedownload = false,
+  String $dayofweek = 'sun',
 
 ){
 
@@ -68,15 +69,15 @@ class puppet_win (
 
   scheduled_task { 'updatereporting_win':
     ensure    => 'present',
-    name      => 'Puppet Windows Update Reporting',
+    name      => 'Windows Update Reporting (Puppet Managed Scheduled Task)',
     enabled   => true,
     command   => 'C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe',
     arguments => "-WindowStyle Hidden -ExecutionPolicy Bypass \"C:\\windows\\temp\\Invoke-WindowsUpdateReport.ps1 -pswindowsupdateurl ${pswindowsupdateurl} -wsusscnurl ${wsusscnurl} -pswindowsupdateforcedownload:${pswindowsupdateforcedownload_set} -wsusscnforcedownload:${wsusscnforcedownload_set} -downloaddirectory ${downloaddirectory}\"",
     provider  => 'taskscheduler_api2',
     trigger   => {
-      schedule   => daily,
-      start_time => "${hour}:${min}",
+      schedule    => weekly,
+      day_of_week => $dayofweek,
+      start_time  => "${hour}:${min}",
     }
-
   }
 }
