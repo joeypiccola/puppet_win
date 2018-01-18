@@ -55,7 +55,7 @@ class puppet_win (
     ensure => 'present',
     source => 'puppet:///modules/puppet_win/Invoke-WindowsUpdateReport.ps1',
     path   => 'c:/windows/temp/Invoke-WindowsUpdateReport.ps1',
-    before => Exec['updatereporting_win'],
+    before => Scheduled_task['updatereporting_win'],
   }
 
   $min = fqdn_rand(59)
