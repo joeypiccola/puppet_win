@@ -36,9 +36,9 @@ class puppet_win (
   Boolean $pswindowsupdate_force_download = false,
   Boolean $wsusscn_force_download = false,
   String $task_day_of_week = 'sun',
-  String $task_every = 1,
+  Integer $task_every = 1,
   String $task_schedule = 'weekly',
-  String $task_enabled = true,
+  Boolean $task_enabled = true,
   String $task_ensure = 'present',
 
 ){
