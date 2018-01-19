@@ -30,30 +30,34 @@
 #
 class puppet_win (
 
-  String $pswindowsupdateurl,
-  String $wsusscnurl,
-  String $downloaddirectory = 'c:/Windows/Temp',
-  Boolean $pswindowsupdateforcedownload = false,
-  Boolean $wsusscnforcedownload = false,
-  String $dayofweek = 'sun',
+  String $pswindowsupdate_url,
+  String $wsusscn_url,
+  String $download_directory = 'c:/Windows/Temp',
+  Boolean $pswindowsupdate_force_download = false,
+  Boolean $wsusscn_force_download = false,
+  String $task_day_of_week = 'sun',
+  String $task_every = 1,
+  String $task_schedule = 'weekly',
+  String $task_enabled = true,
+  String $task_ensure = 'present',
 
 ){
 
-  case $pswindowsupdateforcedownload {
+  case $pswindowsupdate_force_download {
     true: {
-      $pswindowsupdateforcedownload_set = '$true'
+      $pswindowsupdate_force_download_set = '$true'
   }
     default: {
-      $pswindowsupdateforcedownload_set = '$false'
+      $pswindowsupdate_force_download_set = '$false'
     }
   }
 
-  case $wsusscnforcedownload {
+  case $wsusscn_force_download {
     true: {
-      $wsusscnforcedownload_set = '$true'
+      $wsusscn_force_download_set = '$true'
   }
     default: {
-      $wsusscnforcedownload_set = '$false'
+      $wsusscn_force_download_set = '$false'
     }
   }
 
@@ -68,15 +72,16 @@ class puppet_win (
   $hour = fqdn_rand(3)+1
 
   scheduled_task { 'updatereporting_win':
-    ensure    => 'present',
+    ensure    => $task_ensure,
     name      => 'Windows Update Reporting (Puppet Managed Scheduled Task)',
-    enabled   => true,
+    enabled   => $task_enabled,
     command   => 'C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe',
-    arguments => "-WindowStyle Hidden -ExecutionPolicy Bypass \"C:\\windows\\temp\\Invoke-WindowsUpdateReport.ps1 -pswindowsupdateurl ${pswindowsupdateurl} -wsusscnurl ${wsusscnurl} -pswindowsupdateforcedownload:${pswindowsupdateforcedownload_set} -wsusscnforcedownload:${wsusscnforcedownload_set} -downloaddirectory ${downloaddirectory}\"",
+    arguments => "-WindowStyle Hidden -ExecutionPolicy Bypass \"C:\\windows\\temp\\Invoke-WindowsUpdateReport.ps1 -pswindowsupdateurl ${pswindowsupdate_url} -wsusscnurl ${wsusscn_url} -pswindowsupdateforcedownload:${pswindowsupdate_force_download_set} -wsusscnforcedownload:${wsusscn_force_download_set} -downloaddirectory ${download_directory}\"",
     provider  => 'taskscheduler_api2',
     trigger   => {
-      schedule    => weekly,
-      day_of_week => $dayofweek,
+      schedule    => $task_schedule,
+      every       => $task_every,
+      day_of_week => $task_day_of_week,
       start_time  => "${hour}:${min}",
     }
   }
